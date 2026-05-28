@@ -1,0 +1,48 @@
+Nimblist Self-Hosting License
+SPDX-License-Identifier: LicenseRef-Nimblist-SelfHost
+
+Copyright (c) 2026 Nimblist. All rights reserved.
+
+This license governs use of the pre-built Nimblist container images published at
+ghcr.io/tmnrtn/nimblist-* and the deployment artifacts in this repository (the
+"Software"). The Nimblist application source code is NOT included and remains
+proprietary and closed.
+
+1. Grant of use
+   You are granted a non-exclusive, non-transferable, revocable license to
+   download, run, and operate the Software for your own personal use or the
+   internal business use of your organization.
+
+2. Restrictions
+   You may NOT:
+   (a) offer the Software, or any service based on or derived from it, to third
+       parties as a hosted, managed, or commercial service (for example, a SaaS
+       offering);
+   (b) sell, sublicense, rent, lease, or otherwise redistribute the Software,
+       the container images, or these artifacts, in whole or in part;
+   (c) reverse engineer, decompile, or attempt to derive the source code from
+       the images, except to the extent this restriction is prohibited by
+       applicable law;
+   (d) remove or alter any copyright, trademark, or attribution notices.
+
+3. Your configuration and data
+   Your configuration, credentials, and the data you store in a self-hosted
+   instance are yours. This license claims no rights over them.
+
+4. No warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+5. Limitation of liability
+   IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+   ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
+
+6. Termination
+   This license terminates automatically if you breach any of its terms. Upon
+   termination you must stop using and remove all copies of the Software.
+
+For commercial, redistribution, or hosting arrangements beyond this grant,
+please contact the copyright holder.

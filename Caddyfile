@@ -1,0 +1,51 @@
+# selfhost/Caddyfile — HTTP-only reverse proxy for self-hosting.
+#
+# Serves plain HTTP on :80 (published by docker-compose as NIMBLIST_HTTP_PORT).
+# It does NOT terminate TLS — put your own TLS-terminating proxy (NPM/Traefik/
+# Caddy/nginx) in front and let it set HSTS. The job here is to merge the React
+# SPA and the API onto ONE origin, because the frontend calls the API with
+# relative paths (/api, /hubs, ...).
+
+:80 {
+	# API
+	handle /api/* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# Health checks (/healthz liveness, /healthz/ready readiness) on the API
+	handle /healthz* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# SignalR — Caddy upgrades WebSocket connections automatically
+	handle /hubs/* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# Identity UI (Razor Pages: register / login / manage account)
+	handle /Identity/* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# OAuth provider callbacks (/signin-google, /signin-microsoft, ...)
+	handle /signin-* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# Static assets served by the API (wwwroot/lib)
+	handle /lib/* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# Everything else → React SPA
+	handle {
+		reverse_proxy nimblist-frontend:80
+	}
+
+	# Security headers (TLS-specific HSTS is left to your upstream TLS proxy)
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}

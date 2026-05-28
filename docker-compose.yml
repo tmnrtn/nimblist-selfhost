@@ -1,0 +1,137 @@
+# =============================================================================
+# Nimblist — self-hosting stack
+# Runs entirely from public GHCR images. Copy .env.example to .env and fill in
+# the Required values, then: docker compose up -d
+#
+# This stack is HTTP-only on a single port (NIMBLIST_HTTP_PORT, default 8080).
+# Put it behind your own TLS-terminating reverse proxy (Caddy/NPM/Traefik/nginx)
+# — point a vhost at http://<this-host>:8080 and let it handle certificates.
+# The bundled Caddy merges the SPA + API onto one origin (the frontend uses
+# relative API paths, so same-origin routing is required).
+# =============================================================================
+
+services:
+
+  # ---- Reverse proxy (HTTP only — terminate TLS upstream) -------------------
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${NIMBLIST_HTTP_PORT:-8080}:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - nimblist-api
+      - nimblist-frontend
+
+  # ---- ASP.NET Core API -----------------------------------------------------
+  nimblist-api:
+    image: ghcr.io/tmnrtn/nimblist-api:${NIMBLIST_VERSION:-1.3.0}
+    restart: unless-stopped
+    user: root   # so the app can write the data-protection keys to the named volume
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Database — points at the bundled Postgres below
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-nimblistdb};Username=${POSTGRES_USER:-nimblist};Password=${POSTGRES_PASSWORD}
+      - ConnectionStrings__Redis=redis:6379
+      # Public URL of your instance (OAuth redirects, email links)
+      - FrontendAppSettings__BaseUrl=${PUBLIC_BASE_URL}
+      - CorsSettings__AllowedOrigins=${CORS_ALLOWED_ORIGINS:-}
+      # Internal service URLs (resolved by compose service name)
+      - ClassificationService__PredictUrl=http://nimblist-classification:5000/predict
+      - RecipeScraperService__ScrapeHtmlUrl=http://nimblist-recipescraper:5001/scrape-html
+      - RecipeScraperService__ScrapeUrl=http://nimblist-recipescraper:5001/scrape
+      - RecipeScraperService__ScrapeImageUrl=http://nimblist-recipescraper:5001/scrape-image
+      - RecipeScraperService__ParseUrl=http://nimblist-recipescraper:5001/parse-ingredients
+      # First user with this email is promoted to Admin on startup
+      - AdminSettings__AdminEmail=${ADMIN_EMAIL:-}
+      # JWT signing key (enables the browser-extension token auth; optional)
+      - Jwt__Key=${JWT_KEY:-}
+      # Web Push (VAPID) — optional; served to the SPA at /api/config when set
+      - VapidSettings__Subject=${VAPID_SUBJECT:-}
+      - VapidSettings__PublicKey=${VAPID_PUBLIC_KEY:-}
+      - VapidSettings__PrivateKey=${VAPID_PRIVATE_KEY:-}
+      # OAuth providers (optional)
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID:-}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET:-}
+      - Authentication__Facebook__AppId=${FACEBOOK_APP_ID:-}
+      - Authentication__Facebook__AppSecret=${FACEBOOK_APP_SECRET:-}
+      - Authentication__Microsoft__ClientId=${MICROSOFT_CLIENT_ID:-}
+      - Authentication__Microsoft__ClientSecret=${MICROSOFT_CLIENT_SECRET:-}
+      # Email (Resend) — optional; without it, emails are silently skipped
+      - Resend__ApiKey=${RESEND_API_KEY:-}
+      - Resend__FromAddress=${RESEND_FROM_ADDRESS:-}
+    volumes:
+      - dataprotection_keys:/keys
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nimblist-classification:
+        condition: service_started
+      nimblist-recipescraper:
+        condition: service_started
+
+  # ---- React SPA (nginx) ----------------------------------------------------
+  nimblist-frontend:
+    image: ghcr.io/tmnrtn/nimblist-frontend:${NIMBLIST_VERSION:-1.3.0}
+    restart: unless-stopped
+
+  # ---- Python classification service ----------------------------------------
+  nimblist-classification:
+    image: ghcr.io/tmnrtn/nimblist-classification:${NIMBLIST_VERSION:-1.3.0}
+    restart: unless-stopped
+    environment:
+      - FLASK_HOST=0.0.0.0
+
+  # ---- Python recipe scraper service ----------------------------------------
+  nimblist-recipescraper:
+    image: ghcr.io/tmnrtn/nimblist-recipescraper:${NIMBLIST_VERSION:-1.3.0}
+    restart: unless-stopped
+    environment:
+      - FLASK_HOST=0.0.0.0
+      # Optional LLM-backed recipe import (leave LLM_PROVIDER empty to disable)
+      - LLM_PROVIDER=${RECIPESCRAPER_LLM_PROVIDER:-}
+      - LLM_MODEL=${RECIPESCRAPER_LLM_MODEL:-}
+      - LLM_VISION_MODEL=${RECIPESCRAPER_LLM_VISION_MODEL:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-}
+
+  # ---- PostgreSQL (bundled — migrations apply automatically on first boot) ---
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-nimblistdb}
+      - POSTGRES_USER=${POSTGRES_USER:-nimblist}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nimblist} -d ${POSTGRES_DB:-nimblistdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Redis (SignalR backplane + data-protection key ring) -----------------
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  dataprotection_keys:
+  caddy_data:
+  caddy_config:
