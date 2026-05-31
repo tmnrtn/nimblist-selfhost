@@ -8,6 +8,11 @@ configured at runtime through a `.env` file.
 > at [nimblist.co.uk](https://nimblist.co.uk) and is provided under a self-hosting
 > licence (personal/internal use only — see [LICENSE](./LICENSE)).
 
+> **Prefer not to run it yourself?** The fully-managed hosted version — automatic
+> updates, backups, and zero ops — is at
+> **[nimblist.co.uk](https://nimblist.co.uk/?utm_source=selfhost&utm_medium=readme&utm_campaign=ce)**.
+> Free to start; Premium adds recipe import (URL + photo) and meal planning.
+
 ## What you get
 
 A self-contained stack of public images from `ghcr.io/tmnrtn/nimblist-*`:
