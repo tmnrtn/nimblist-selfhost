@@ -5,12 +5,12 @@ planning — from public container images. No source build required; everything 
 configured at runtime through a `.env` file.
 
 > This is the **Community Edition**. It is branded distinctly from the hosted service
-> at [nimblist.co.uk](https://nimblist.co.uk) and is provided under a self-hosting
+> at [nimblist.app](https://nimblist.app) and is provided under a self-hosting
 > licence (personal/internal use only — see [LICENSE](./LICENSE)).
 
 > **Prefer not to run it yourself?** The fully-managed hosted version — automatic
 > updates, backups, and zero ops — is at
-> **[nimblist.co.uk](https://nimblist.co.uk/?utm_source=selfhost&utm_medium=readme&utm_campaign=ce)**.
+> **[nimblist.app](https://nimblist.app/?utm_source=selfhost&utm_medium=readme&utm_campaign=ce)**.
 > Free to start; Premium adds recipe import (URL + photo) and meal planning.
 
 ## What you get
