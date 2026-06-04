@@ -28,7 +28,7 @@ services:
 
   # ---- ASP.NET Core API -----------------------------------------------------
   nimblist-api:
-    image: ghcr.io/tmnrtn/nimblist-api:${NIMBLIST_VERSION:-1.5.0}
+    image: ghcr.io/tmnrtn/nimblist-api:${NIMBLIST_VERSION:-1.6.0}
     restart: unless-stopped
     user: root   # so the app can write the data-protection keys to the named volume
     environment:
@@ -78,19 +78,19 @@ services:
 
   # ---- React SPA (nginx) ----------------------------------------------------
   nimblist-frontend:
-    image: ghcr.io/tmnrtn/nimblist-frontend:${NIMBLIST_VERSION:-1.5.0}
+    image: ghcr.io/tmnrtn/nimblist-frontend:${NIMBLIST_VERSION:-1.6.0}
     restart: unless-stopped
 
   # ---- Python classification service ----------------------------------------
   nimblist-classification:
-    image: ghcr.io/tmnrtn/nimblist-classification:${NIMBLIST_VERSION:-1.5.0}
+    image: ghcr.io/tmnrtn/nimblist-classification:${NIMBLIST_VERSION:-1.6.0}
     restart: unless-stopped
     environment:
       - FLASK_HOST=0.0.0.0
 
   # ---- Python recipe scraper service ----------------------------------------
   nimblist-recipescraper:
-    image: ghcr.io/tmnrtn/nimblist-recipescraper:${NIMBLIST_VERSION:-1.5.0}
+    image: ghcr.io/tmnrtn/nimblist-recipescraper:${NIMBLIST_VERSION:-1.6.0}
     restart: unless-stopped
     environment:
       - FLASK_HOST=0.0.0.0
