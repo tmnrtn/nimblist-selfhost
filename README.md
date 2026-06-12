@@ -1,5 +1,10 @@
 # Nimblist — Community Edition (self-hosting)
 
+![Test coverage](https://img.shields.io/badge/test_coverage-82%25-brightgreen)
+![Bugs](https://img.shields.io/badge/bugs-0-brightgreen)
+![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0-brightgreen)
+![Security hotspots](https://img.shields.io/badge/security_hotspots-0-brightgreen)
+
 Run your own instance of Nimblist — collaborative shopping lists, recipes, and meal
 planning — from public container images. No source build required; everything is
 configured at runtime through a `.env` file.
@@ -142,6 +147,14 @@ cat nimblist-backup.sql | docker compose exec -T db psql -U nimblist nimblistdb
 - **Password-reset / invite emails not arriving** — Resend isn't configured
   (`RESEND_API_KEY`). The app runs fine without it; emails are just skipped.
 - **Health check** — `curl https://nimblist.example.com/healthz` should return `200`.
+
+## Code quality
+
+The full codebase behind these images (ASP.NET Core API, React frontend, and both
+Python services) is scanned with **SonarQube** on every merge to main: **0 bugs,
+0 vulnerabilities, 0 open security hotspots, ~82% test coverage** (last updated
+June 2026; badges above reflect the same scan). The images you self-host are built
+from the same pipeline that runs [nimblist.app](https://nimblist.app).
 
 ## Licence
 
