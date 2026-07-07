@@ -30,7 +30,12 @@ services:
   nimblist-api:
     image: ghcr.io/tmnrtn/nimblist-api:${NIMBLIST_VERSION:-1.11.0}
     restart: unless-stopped
-    user: root   # so the app can write the data-protection keys to the named volume
+    # No `user: root` override (#1274): the image runs as the non-root $APP_UID
+    # (docker:S6471 hardening). DataProtection persists keys to the bundled Redis
+    # (ConnectionStrings__Redis above), and the api Dockerfile pre-creates the /keys
+    # fallback dir owned by $APP_UID, so a fresh dataprotection_keys volume is writable
+    # without root. (An older CE volume created root-owned by a previous root run stays
+    # root-owned; delete it — `docker volume rm` — if you ever rely on the no-Redis path.)
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080

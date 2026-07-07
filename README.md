@@ -66,7 +66,11 @@ Your reverse proxy must:
 1. **Terminate TLS** and serve the site over `https://`.
 2. **Forward `X-Forwarded-Proto: https`** — without it the API thinks the request is
    insecure, won't set the auth cookie, and login silently fails. (Most proxies do
-   this automatically.)
+   this automatically.) The bundled Caddy trusts private-range front proxies
+   (`servers { trusted_proxies static private_ranges }` in [`Caddyfile`](./Caddyfile))
+   so your proxy's `X-Forwarded-Proto: https` is passed through to the API rather than
+   rewritten to `http` — required since Caddy 2.5. If your front proxy is **not** on a
+   private network, tighten that directive to its exact CIDR.
 3. **Preserve the `Host` header** (used for OAuth redirects and email links).
 4. **Allow WebSocket upgrades** for `/hubs/*` (SignalR live updates).
 

@@ -6,6 +6,21 @@
 # SPA and the API onto ONE origin, because the frontend calls the API with
 # relative paths (/api, /hubs, ...).
 
+# Global options.
+{
+	# Trust the front proxy so inbound X-Forwarded-* pass through (#1276). Since Caddy 2.5,
+	# reverse_proxy only forwards X-Forwarded-* (including X-Forwarded-Proto) from TRUSTED
+	# proxies; otherwise Caddy overwrites the front proxy's `X-Forwarded-Proto: https` with
+	# `http`, so the API sees Request.Scheme=http behind your TLS proxy. That downgrades every
+	# scheme-derived absolute URL — notably OAuth redirect URIs become http://…/signin-google,
+	# which providers reject, so CE social login breaks. A self-host front proxy
+	# (NPM/Traefik/Caddy/nginx) runs on your LAN / the Docker network, so trusting the private
+	# ranges is correct. Tighten to your proxy's exact CIDR if it is not on a private network.
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
 :80 {
 	# API
 	handle /api/* {
@@ -29,6 +44,20 @@
 
 	# OAuth provider callbacks (/signin-google, /signin-microsoft, ...)
 	handle /signin-* {
+		reverse_proxy nimblist-api:8080
+	}
+
+	# OpenIddict OAuth2 endpoints (authorize/token) served by the API — parity with prod
+	# (#1276). Force X-Forwarded-Proto https: OpenIddict rejects non-HTTPS requests, and
+	# CE is expected to run behind an upstream TLS proxy.
+	handle /connect/* {
+		reverse_proxy nimblist-api:8080 {
+			header_up X-Forwarded-Proto https
+		}
+	}
+
+	# Swagger / OpenAPI docs served by the API — parity with prod (#1276).
+	handle /swagger* {
 		reverse_proxy nimblist-api:8080
 	}
 
