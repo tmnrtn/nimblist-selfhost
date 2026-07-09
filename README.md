@@ -16,7 +16,9 @@ configured at runtime through a `.env` file.
 > **Prefer not to run it yourself?** The fully-managed hosted version — automatic
 > updates, backups, and zero ops — is at
 > **[nimblist.app](https://nimblist.app/?utm_source=selfhost&utm_medium=readme&utm_campaign=ce)**.
-> Free to start; Premium adds recipe import (URL + photo) and meal planning.
+> Free to start; Premium adds recipe import (URL + photo) and meal planning. The hosted app is
+> also on **[iPhone & iPad via the App Store](https://apps.apple.com/app/nimblist/id6782573869)**,
+> with Android coming soon to Google Play.
 
 ## What you get
 
