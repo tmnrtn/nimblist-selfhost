@@ -69,6 +69,8 @@ services:
       # Email (Resend) — optional; without it, emails are silently skipped
       - Resend__ApiKey=${RESEND_API_KEY:-}
       - Resend__FromAddress=${RESEND_FROM_ADDRESS:-}
+      # Delivery-event webhook (#1418). Unset ⇒ /api/resend/webhook rejects every request.
+      - Resend__WebhookSecret=${RESEND_WEBHOOK_SECRET:-}
     volumes:
       - dataprotection_keys:/keys
     depends_on:
