@@ -37,6 +37,11 @@ A self-contained stack of public images from `ghcr.io/tmnrtn/nimblist-*`:
 ## Prerequisites
 
 - **Docker** with the Compose plugin (`docker compose`).
+- **A 64-bit machine.** Images are published for `linux/amd64` and `linux/arm64`,
+  so an x86-64 server, an Apple Silicon Mac, or a 64-bit Raspberry Pi OS install on a
+  Pi 4/5 all work. 32-bit ARM (`armv7`, the older Raspberry Pi OS default) is **not**
+  published — `docker compose up` there fails with an `exec format error`. Check with
+  `uname -m`: `x86_64` or `aarch64` are fine, `armv7l` is not.
 - **Your own TLS-terminating reverse proxy** (Nginx Proxy Manager, Traefik, Caddy,
   nginx, …) with a domain and certificate. This stack serves **plain HTTP** on one
   port — you put HTTPS in front of it.
