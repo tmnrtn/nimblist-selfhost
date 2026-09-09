@@ -76,5 +76,21 @@
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "SAMEORIGIN"
 		Referrer-Policy "strict-origin-when-cross-origin"
+
+		# Content-Security-Policy (#1764). REPORT-ONLY here as well as on the hosted
+		# service: enforcing it would risk breaking sign-in or checkout on a deployment
+		# we can't observe. If you have customised the stack (a different OAuth provider,
+		# your own analytics), watch your browser console for violations before switching
+		# the header name to `Content-Security-Policy`.
+		#
+		# CE has no PayPal, no GA and no Sentry, so this is tighter than the hosted
+		# policy — self-hosting genuinely has fewer third parties. The SignalR realtime
+		# websocket is same-origin, which `connect-src 'self'` covers; the hosted policy
+		# names its wss:// host explicitly only because it knows what that host is.
+		Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' https://accounts.google.com; connect-src 'self' https://accounts.google.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src https://accounts.google.com; object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://accounts.google.com https://login.microsoftonline.com https://www.facebook.com"
+
+		# Enforced, unlike the CSP: this only ever removes capabilities. Camera and
+		# microphone stay available to the app itself (recipe photo import, voice capture).
+		Permissions-Policy "camera=(self), microphone=(self), geolocation=(), interest-cohort=()"
 	}
 }
